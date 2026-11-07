@@ -304,6 +304,36 @@ services:
       start_period: 60s
       retries: 5
 
+  # ===================== Mailpit (local fake SMTP) ====================
+  # Dev/demo inbox for the backend emails. It joins automation_net ONLY,
+  # together with n8n, web and worker: db, redis, inference and collector
+  # cannot resolve or reach it. The SMTP port 1025 is NEVER published; only
+  # the UI/API is bound to 127.0.0.1:8025. Messages are kept in memory by
+  # default (no volume), which is what a disposable test inbox needs.
+  # Official image, tag pinned to the latest stable release (v1.33.0,
+  # published 2026-10-31): no "latest". Runtime variables below are the
+  # documented Mailpit ones (MP_MAX_MESSAGES, MP_DISABLE_VERSION_CHECK).
+  mailpit:
+    profiles: ["full"]
+    image: axllent/mailpit:v1.33.0
+    restart: unless-stopped
+    environment:
+      MP_MAX_MESSAGES: "500"
+      MP_DISABLE_VERSION_CHECK: "true"
+    ports:
+      - "127.0.0.1:8025:8025"
+    networks:
+      - automation_net
+    mem_limit: "256m"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "wget -q -O /dev/null http://127.0.0.1:8025/livez || exit 1"
+      interval: 15s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+
   # ======================= inference service (US26) ===================
   # Separate CPU FastAPI service (PyTorch). The bundle (backend/ml_artifacts)
   # is mounted READ-ONLY; the image never contains weights. The port is NOT

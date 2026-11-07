@@ -1,0 +1,66 @@
+{
+  "updatedAt": "2026-11-06T10:33:53.062Z",
+  "createdAt": "2026-11-06T10:33:53.062Z",
+  "id": "sXpE7NALcHwqKDuv",
+  "name": "Phishing - test event",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "test-event",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "11111111-1111-4111-8111-111111111111",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "11111111-1111-4111-8111-111111111111"
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "nodeGroups": [],
+  "pinData": null,
+  "versionId": "7fa6f530-3eb8-4b5a-8511-9823c575eb92",
+  "activeVersionId": "7fa6f530-3eb8-4b5a-8511-9823c575eb92",
+  "versionCounter": 1,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-11-06T10:33:53.066Z",
+      "createdAt": "2026-11-06T10:33:53.066Z",
+      "role": "workflow:owner",
+      "workflowId": "sXpE7NALcHwqKDuv",
+      "projectId": "og6hw2nzrQUtD7nI",
+      "project": {
+        "updatedAt": "2026-11-06T09:57:19.305Z",
+        "createdAt": "2026-11-06T09:57:19.305Z",
+        "id": "og6hw2nzrQUtD7nI",
+        "name": "Unnamed Project",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "5b6fc176-551f-43ff-b459-52cdc84356a2"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

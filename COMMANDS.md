@@ -140,3 +140,52 @@ docker compose exec -T worker python manage.py send_test_event test.event
 docker compose logs --since 2m worker | Select-String 'integration\.'
 docker compose exec -T worker python manage.py shell -c "from audit.models import AuditLog; print(AuditLog.objects.filter(action='integration.delivery_failed').values_list('metadata', flat=True).last())"
 ```
+
+## Mailpit (boîte mail locale, profil `full`)
+
+Image épinglée : `axllent/mailpit:v1.33.0` (dernière stable, publiée le 31/10/2026). Réseau `automation_net` uniquement (avec `n8n`, `web`, `worker`) ; le SMTP `1025` n'est jamais publié, seule l'UI/API écoute sur `127.0.0.1:8025`.
+
+Démarrer Mailpit et recréer `web` + `worker` (ils lisent `.env` à leur création ; aucun volume supprimé) :
+
+```
+cd backend
+docker compose -f docker-compose.yml -f ..\collector\docker-compose.collector.yml --profile full up -d --no-deps mailpit web worker
+```
+
+Activer l'envoi vers Mailpit dans `.env` (le défaut reste le backend console) :
+
+```
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=mailpit
+EMAIL_PORT=1025
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+EMAIL_USE_TLS=False
+```
+
+Ouvrir la boîte :
+
+```
+Start-Process http://127.0.0.1:8025
+```
+
+Lister les messages via l'API v1 :
+
+```
+Invoke-RestMethod http://127.0.0.1:8025/api/v1/messages | ConvertTo-Json -Depth 6
+```
+
+Vider la boîte (tous les messages) :
+
+```
+Invoke-RestMethod -Method Delete http://127.0.0.1:8025/api/v1/messages
+```
+
+Envoyer un mail de test depuis le worker (utilise la config email du backend) :
+
+```
+cd backend
+docker compose exec -T worker python manage.py shell -c "from django.core.mail import send_mail; send_mail('Test Mailpit', 'Message de test', 'noreply@phishing-detector.local', ['test@example.org'])"
+```
+
+Isolement vérifié : `n8n` joint `mailpit:1025` (SMTP, sans TLS ni auth) ; `db`, `redis`, `inference` et `collector` ne résolvent pas `mailpit` (DNS_FAIL / TCP_BLOCKED). Ne jamais lancer `docker compose down -v`.
