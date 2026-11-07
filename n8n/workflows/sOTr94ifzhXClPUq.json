@@ -1,0 +1,66 @@
+{
+  "updatedAt": "2026-11-06T10:33:53.055Z",
+  "createdAt": "2026-11-06T10:33:53.055Z",
+  "id": "sOTr94ifzhXClPUq",
+  "name": "Phishing - scan needs review",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "scan-needs-review",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "33333333-3333-4333-8333-333333333333",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "33333333-3333-4333-8333-333333333333"
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "nodeGroups": [],
+  "pinData": null,
+  "versionId": "731e1bab-3dd6-4516-acf2-8b12647a8daa",
+  "activeVersionId": "731e1bab-3dd6-4516-acf2-8b12647a8daa",
+  "versionCounter": 1,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-11-06T10:33:53.058Z",
+      "createdAt": "2026-11-06T10:33:53.058Z",
+      "role": "workflow:owner",
+      "workflowId": "sOTr94ifzhXClPUq",
+      "projectId": "og6hw2nzrQUtD7nI",
+      "project": {
+        "updatedAt": "2026-11-06T09:57:19.305Z",
+        "createdAt": "2026-11-06T09:57:19.305Z",
+        "id": "og6hw2nzrQUtD7nI",
+        "name": "Unnamed Project",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "5b6fc176-551f-43ff-b459-52cdc84356a2"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}
