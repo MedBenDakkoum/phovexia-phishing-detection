@@ -74,8 +74,9 @@ test.describe("FE-3 automatisations n8n", () => {
     ).toBeVisible();
     for (const workflow of [
       "W1 · Alerte phishing confirmé",
-      "W2 · Signalement à examiner",
+      "W2 · Cas à examiner",
       "W3 · Rapport quotidien",
+      "W4 · Signalement par formulaire",
     ]) {
       await expect(
         page.getByRole("heading", { name: workflow })
@@ -86,7 +87,16 @@ test.describe("FE-3 automatisations n8n", () => {
       page.getByText("scan.needs_review", { exact: false }).first()
     ).toBeVisible();
     await expect(
-      page.getByText("Planification interne à n8n", { exact: false })
+      page.getByText("Planification n8n", { exact: true }).first()
+    ).toBeVisible();
+    await expect(
+      page.getByText("Formulaire n8n", { exact: true }).first()
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "n8n n'ouvre jamais les liens : toutes les analyses passent par l'API de l'application.",
+        { exact: false }
+      )
     ).toBeVisible();
   });
 });

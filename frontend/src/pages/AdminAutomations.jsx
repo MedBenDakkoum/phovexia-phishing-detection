@@ -24,30 +24,38 @@ const WORKFLOWS = [
   {
     id: "W1",
     title: "Alerte phishing confirmé",
-    trigger: "Événement scan.confirmed (décision d'un analyste)",
-    badge: "Événement backend",
+    trigger: "Événement scan.confirmed (un analyste confirme un phishing)",
+    badge: "Événement de l'application",
     badgeClass: "badge-success",
     description:
-      "Prévient l'équipe (e-mail, Slack) dès qu'un analyste confirme un phishing, avec le lien vers le dossier de revue.",
+      "Déclenché par l'événement scan.confirmed (un analyste confirme un phishing) ; envoie un e-mail d'alerte à l'équipe avec le domaine neutralisé (hxxps://exemple[.]com) et le lien vers le cas.",
   },
   {
     id: "W2",
-    title: "Signalement à examiner",
-    trigger:
-      "Événement scan.needs_review (verdict incertain ou signalement propriétaire)",
-    badge: "Événement backend",
+    title: "Cas à examiner",
+    trigger: "Événement scan.needs_review",
+    badge: "Événement de l'application",
     badgeClass: "badge-info",
     description:
-      "Crée un ticket et notifie l'analyste quand un scan incertain complet ou signalé par son propriétaire doit être revu.",
+      "Déclenché par l'événement scan.needs_review ; envoie un e-mail à l'équipe d'analystes pour signaler qu'un cas attend une revue.",
   },
   {
     id: "W3",
     title: "Rapport quotidien",
-    trigger: "Planification interne à n8n (Schedule Trigger)",
-    badge: "Planifié dans n8n",
+    trigger: "Planification n8n (Schedule Trigger)",
+    badge: "Planification n8n",
     badgeClass: "badge-gold",
     description:
-      "Agrège chaque jour les scans et les décisions puis envoie un rapport récapitulatif. Aucun événement backend n'est nécessaire.",
+      "Planifié dans n8n ; lit le tableau de bord et la santé du système via l'API et envoie un résumé par e-mail.",
+  },
+  {
+    id: "W4",
+    title: "Signalement par formulaire",
+    trigger: "Formulaire n8n",
+    badge: "Formulaire n8n",
+    badgeClass: "badge-info",
+    description:
+      "Déclenché par un formulaire n8n ; extrait les liens d'un message suspect, les fait analyser par l'API et affiche le verdict.",
   },
 ];
 
@@ -306,6 +314,10 @@ export default function AdminAutomations() {
             </article>
           ))}
         </div>
+        <p className="muted" style={{ marginTop: 12 }}>
+          n8n n'ouvre jamais les liens : toutes les analyses passent par l'API
+          de l'application.
+        </p>
       </section>
     </>
   );
