@@ -36,3 +36,9 @@ export const createAdminApiKey = (payload) =>
 
 export const revokeAdminApiKey = (id) =>
   request(ENDPOINTS.adminApiKey(id), { method: "DELETE" }).then(unwrap);
+
+export const getAdminIntegrations = (signal) =>
+  request(ENDPOINTS.adminIntegrations, { signal }).then(unwrap);
+
+export const sendAdminIntegrationTest = () =>
+  request(ENDPOINTS.adminIntegrationTest, { method: "POST" }).then(unwrap);

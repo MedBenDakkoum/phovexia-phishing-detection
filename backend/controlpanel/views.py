@@ -28,8 +28,14 @@ from rest_framework import generics, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 
 from accounts.permissions import IsAdmin
+from integrations.services import (
+    get_integration_status,
+    is_enabled,
+    send_test_event,
+)
 from scans.models import Scan
 
 from .models import ApiKey, DetectionSettings, ModelVersion
@@ -42,6 +48,8 @@ from .serializers import (
     DashboardSerializer,
     DetectionSettingsSerializer,
     DetectionSettingsUpdateSerializer,
+    IntegrationStatusSerializer,
+    IntegrationTestResultSerializer,
     ModelCompareSerializer,
     ModelVersionCreateSerializer,
     ModelVersionSerializer,
@@ -527,3 +535,81 @@ class ApiKeyRevokeView(generics.DestroyAPIView):
         key = self.get_object()
         revoke_api_key(key, user=request.user, request=request)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AdminIntegrationsView(generics.GenericAPIView):
+    """GET /api/admin/integrations/ - n8n snapshot (never fails)."""
+
+    queryset = Scan.objects.none()
+    serializer_class = IntegrationStatusSerializer
+    permission_classes: ClassVar[list] = [IsAdmin]
+
+    @extend_schema(
+        tags=[_ADMIN_TAG],
+        responses={200: IntegrationStatusSerializer},
+        summary="État de l'intégration n8n",
+        description=(
+            "Instantané en lecture seule : activée ou non, hôte du webhook "
+            "(nom d'hôte uniquement), joignabilité (`/healthz`, timeout 2 s, "
+            "jamais d'erreur), URL publique de l'éditeur n8n, compteurs "
+            "livrés/échoués sur 24 h et 20 derniers événements issus de "
+            "l'audit. Jamais de secret ni d'URL webhook complète."
+        ),
+    )
+    def get(self, request, *args, **kwargs):
+        return Response(
+            IntegrationStatusSerializer(get_integration_status()).data
+        )
+
+
+class AdminIntegrationTestView(generics.GenericAPIView):
+    """POST /api/admin/integrations/test/ - queue one harmless event."""
+
+    queryset = Scan.objects.none()
+    serializer_class = IntegrationTestResultSerializer
+    permission_classes: ClassVar[list] = [IsAdmin]
+    throttle_classes: ClassVar[list] = [ScopedRateThrottle]
+    throttle_scope = "integration_test"
+
+    @extend_schema(
+        tags=[_ADMIN_TAG],
+        request=None,
+        responses={
+            202: IntegrationTestResultSerializer,
+            429: AdminErrorSerializer,
+        },
+        summary="Envoyer un événement de test n8n",
+        description=(
+            "Émet un `test.event` strictement identique à celui de "
+            "`manage.py send_test_event` (mise en file après commit, aucun "
+            "destinataire choisi par le client). Réponse 202 immédiate : "
+            "`queued`, `event_id`, `detail`. Limitée à 5/min par admin. "
+            "Intégration désactivée : 202 avec `queued=false`, aucun envoi."
+        ),
+    )
+    def post(self, request, *args, **kwargs):
+        if not is_enabled():
+            return Response(
+                {
+                    "queued": False,
+                    "event_id": None,
+                    "detail": (
+                        "Intégration désactivée : N8N_WEBHOOK_BASE_URL est "
+                        "vide, aucun événement n'a été envoyé."
+                    ),
+                },
+                status=status.HTTP_202_ACCEPTED,
+            )
+        event_id = send_test_event()
+        return Response(
+            {
+                "queued": event_id is not None,
+                "event_id": event_id,
+                "detail": (
+                    "Événement de test mis en file. La livraison est "
+                    "tentée par le worker Celery ; le résultat apparaît "
+                    "dans les événements récents."
+                ),
+            },
+            status=status.HTTP_202_ACCEPTED,
+        )

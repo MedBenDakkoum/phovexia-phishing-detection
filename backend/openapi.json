@@ -258,6 +258,76 @@
                 }
             }
         },
+        "/api/admin/integrations/": {
+            "get": {
+                "operationId": "admin_integrations_retrieve",
+                "description": "Instantané en lecture seule : activée ou non, hôte du webhook (nom d'hôte uniquement), joignabilité (`/healthz`, timeout 2 s, jamais d'erreur), URL publique de l'éditeur n8n, compteurs livrés/échoués sur 24 h et 20 derniers événements issus de l'audit. Jamais de secret ni d'URL webhook complète.",
+                "summary": "État de l'intégration n8n",
+                "tags": [
+                    "admin"
+                ],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IntegrationStatus"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/integrations/test/": {
+            "post": {
+                "operationId": "admin_integrations_test_create",
+                "description": "Émet un `test.event` strictement identique à celui de `manage.py send_test_event` (mise en file après commit, aucun destinataire choisi par le client). Réponse 202 immédiate : `queued`, `event_id`, `detail`. Limitée à 5/min par admin. Intégration désactivée : 202 avec `queued=false`, aucun envoi.",
+                "summary": "Envoyer un événement de test n8n",
+                "tags": [
+                    "admin"
+                ],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IntegrationTestResult"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "429": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminError"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/admin/models/": {
             "get": {
                 "operationId": "admin_models_list",
@@ -713,6 +783,7 @@
                                 "blocklist_add",
                                 "blocklist_remove",
                                 "decision",
+                                "integration.delivered",
                                 "integration.delivery_failed",
                                 "login_failed",
                                 "login_success",
@@ -734,7 +805,7 @@
                                 "user_suspend"
                             ]
                         },
-                        "description": "* `register` - Inscription\n* `login_success` - Connexion réussie\n* `login_failed` - Connexion échouée\n* `role_change` - Changement de rôle\n* `user_suspend` - Suspension d'un compte\n* `user_reactivate` - Réactivation d'un compte\n* `decision` - Décision\n* `blocklist_add` - Ajout à la blocklist\n* `blocklist_remove` - Retrait de la blocklist\n* `model_update` - Modèle\n* `scan_created` - Création d'un scan\n* `scan_status_changed` - Changement de statut d'un scan\n* `quick_check.created` - Quick check anonyme\n* `report.created` - Signalement d'un verdict\n* `scan.decided` - Décision d'un analyste\n* `note.added` - Note interne d'un analyste\n* `scan.rescanned` - Nouveau scan relancé par un analyste\n* `blocklist.added` - Ajout à la blocklist\n* `blocklist.removed` - Retrait de la blocklist\n* `blocklist.exported` - Export de la blocklist\n* `settings.changed` - Réglages de détection modifiés\n* `model.activated` - Version de modèle activée\n* `apikey.created` - Création d'une clé API\n* `apikey.revoked` - Révocation d'une clé API\n* `password.reset_requested` - Demande de réinitialisation\n* `password.reset_completed` - Mot de passe réinitialisé\n* `integration.delivery_failed` - Échec de livraison d'un événement d'intégration"
+                        "description": "* `register` - Inscription\n* `login_success` - Connexion réussie\n* `login_failed` - Connexion échouée\n* `role_change` - Changement de rôle\n* `user_suspend` - Suspension d'un compte\n* `user_reactivate` - Réactivation d'un compte\n* `decision` - Décision\n* `blocklist_add` - Ajout à la blocklist\n* `blocklist_remove` - Retrait de la blocklist\n* `model_update` - Modèle\n* `scan_created` - Création d'un scan\n* `scan_status_changed` - Changement de statut d'un scan\n* `quick_check.created` - Quick check anonyme\n* `report.created` - Signalement d'un verdict\n* `scan.decided` - Décision d'un analyste\n* `note.added` - Note interne d'un analyste\n* `scan.rescanned` - Nouveau scan relancé par un analyste\n* `blocklist.added` - Ajout à la blocklist\n* `blocklist.removed` - Retrait de la blocklist\n* `blocklist.exported` - Export de la blocklist\n* `settings.changed` - Réglages de détection modifiés\n* `model.activated` - Version de modèle activée\n* `apikey.created` - Création d'une clé API\n* `apikey.revoked` - Révocation d'une clé API\n* `password.reset_requested` - Demande de réinitialisation\n* `password.reset_completed` - Mot de passe réinitialisé\n* `integration.delivery_failed` - Échec de livraison d'un événement d'intégration\n* `integration.delivered` - Livraison d'un événement d'intégration"
                     },
                     {
                         "in": "query",
@@ -3367,10 +3438,11 @@
                     "apikey.revoked",
                     "password.reset_requested",
                     "password.reset_completed",
-                    "integration.delivery_failed"
+                    "integration.delivery_failed",
+                    "integration.delivered"
                 ],
                 "type": "string",
-                "description": "* `register` - Inscription\n* `login_success` - Connexion réussie\n* `login_failed` - Connexion échouée\n* `role_change` - Changement de rôle\n* `user_suspend` - Suspension d'un compte\n* `user_reactivate` - Réactivation d'un compte\n* `decision` - Décision\n* `blocklist_add` - Ajout à la blocklist\n* `blocklist_remove` - Retrait de la blocklist\n* `model_update` - Modèle\n* `scan_created` - Création d'un scan\n* `scan_status_changed` - Changement de statut d'un scan\n* `quick_check.created` - Quick check anonyme\n* `report.created` - Signalement d'un verdict\n* `scan.decided` - Décision d'un analyste\n* `note.added` - Note interne d'un analyste\n* `scan.rescanned` - Nouveau scan relancé par un analyste\n* `blocklist.added` - Ajout à la blocklist\n* `blocklist.removed` - Retrait de la blocklist\n* `blocklist.exported` - Export de la blocklist\n* `settings.changed` - Réglages de détection modifiés\n* `model.activated` - Version de modèle activée\n* `apikey.created` - Création d'une clé API\n* `apikey.revoked` - Révocation d'une clé API\n* `password.reset_requested` - Demande de réinitialisation\n* `password.reset_completed` - Mot de passe réinitialisé\n* `integration.delivery_failed` - Échec de livraison d'un événement d'intégration"
+                "description": "* `register` - Inscription\n* `login_success` - Connexion réussie\n* `login_failed` - Connexion échouée\n* `role_change` - Changement de rôle\n* `user_suspend` - Suspension d'un compte\n* `user_reactivate` - Réactivation d'un compte\n* `decision` - Décision\n* `blocklist_add` - Ajout à la blocklist\n* `blocklist_remove` - Retrait de la blocklist\n* `model_update` - Modèle\n* `scan_created` - Création d'un scan\n* `scan_status_changed` - Changement de statut d'un scan\n* `quick_check.created` - Quick check anonyme\n* `report.created` - Signalement d'un verdict\n* `scan.decided` - Décision d'un analyste\n* `note.added` - Note interne d'un analyste\n* `scan.rescanned` - Nouveau scan relancé par un analyste\n* `blocklist.added` - Ajout à la blocklist\n* `blocklist.removed` - Retrait de la blocklist\n* `blocklist.exported` - Export de la blocklist\n* `settings.changed` - Réglages de détection modifiés\n* `model.activated` - Version de modèle activée\n* `apikey.created` - Création d'une clé API\n* `apikey.revoked` - Révocation d'une clé API\n* `password.reset_requested` - Demande de réinitialisation\n* `password.reset_completed` - Mot de passe réinitialisé\n* `integration.delivery_failed` - Échec de livraison d'un événement d'intégration\n* `integration.delivered` - Livraison d'un événement d'intégration"
             },
             "AdminError": {
                 "type": "object",
@@ -4015,6 +4087,100 @@
                     "message",
                     "ok",
                     "value"
+                ]
+            },
+            "IntegrationEvent": {
+                "type": "object",
+                "description": "One audit-backed delivery event (no payload, no secret).",
+                "properties": {
+                    "event_type": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "occurred_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "event_type",
+                    "occurred_at",
+                    "status"
+                ]
+            },
+            "IntegrationEventsLast24h": {
+                "type": "object",
+                "properties": {
+                    "delivered": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "failed": {
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                },
+                "required": [
+                    "delivered",
+                    "failed"
+                ]
+            },
+            "IntegrationStatus": {
+                "type": "object",
+                "description": "GET /api/admin/integrations/ response (read-only snapshot).",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "host": {
+                        "type": "string"
+                    },
+                    "reachable": {
+                        "type": "boolean"
+                    },
+                    "editor_url": {
+                        "type": "string"
+                    },
+                    "events_last_24h": {
+                        "$ref": "#/components/schemas/IntegrationEventsLast24h"
+                    },
+                    "recent_events": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegrationEvent"
+                        }
+                    }
+                },
+                "required": [
+                    "editor_url",
+                    "enabled",
+                    "events_last_24h",
+                    "host",
+                    "reachable",
+                    "recent_events"
+                ]
+            },
+            "IntegrationTestResult": {
+                "type": "object",
+                "description": "POST /api/admin/integrations/test/ response (202).",
+                "properties": {
+                    "queued": {
+                        "type": "boolean"
+                    },
+                    "event_id": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "detail": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "detail",
+                    "event_id",
+                    "queued"
                 ]
             },
             "Logout": {

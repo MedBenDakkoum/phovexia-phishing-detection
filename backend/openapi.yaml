@@ -165,6 +165,53 @@ paths:
               schema:
                 $ref: '#/components/schemas/AdminHealth'
           description: ''
+  /api/admin/integrations/:
+    get:
+      operationId: admin_integrations_retrieve
+      description: 'Instantané en lecture seule : activée ou non, hôte du webhook
+        (nom d''hôte uniquement), joignabilité (`/healthz`, timeout 2 s, jamais d''erreur),
+        URL publique de l''éditeur n8n, compteurs livrés/échoués sur 24 h et 20 derniers
+        événements issus de l''audit. Jamais de secret ni d''URL webhook complète.'
+      summary: État de l'intégration n8n
+      tags:
+      - admin
+      security:
+      - ApiKeyAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationStatus'
+          description: ''
+  /api/admin/integrations/test/:
+    post:
+      operationId: admin_integrations_test_create
+      description: 'Émet un `test.event` strictement identique à celui de `manage.py
+        send_test_event` (mise en file après commit, aucun destinataire choisi par
+        le client). Réponse 202 immédiate : `queued`, `event_id`, `detail`. Limitée
+        à 5/min par admin. Intégration désactivée : 202 avec `queued=false`, aucun
+        envoi.'
+      summary: Envoyer un événement de test n8n
+      tags:
+      - admin
+      security:
+      - ApiKeyAuth: []
+      - jwtAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationTestResult'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminError'
+          description: ''
   /api/admin/models/:
     get:
       operationId: admin_models_list
@@ -453,6 +500,7 @@ paths:
           - blocklist_add
           - blocklist_remove
           - decision
+          - integration.delivered
           - integration.delivery_failed
           - login_failed
           - login_success
@@ -500,6 +548,7 @@ paths:
           * `password.reset_requested` - Demande de réinitialisation
           * `password.reset_completed` - Mot de passe réinitialisé
           * `integration.delivery_failed` - Échec de livraison d'un événement d'intégration
+          * `integration.delivered` - Livraison d'un événement d'intégration
       - in: query
         name: date_from
         schema:
@@ -2221,6 +2270,7 @@ components:
       - password.reset_requested
       - password.reset_completed
       - integration.delivery_failed
+      - integration.delivered
       type: string
       description: |-
         * `register` - Inscription
@@ -2250,6 +2300,7 @@ components:
         * `password.reset_requested` - Demande de réinitialisation
         * `password.reset_completed` - Mot de passe réinitialisé
         * `integration.delivery_failed` - Échec de livraison d'un événement d'intégration
+        * `integration.delivered` - Livraison d'un événement d'intégration
     AdminError:
       type: object
       description: '400/404/409 body: machine-readable `code` + human `detail` (schema
@@ -2759,6 +2810,73 @@ components:
       - message
       - ok
       - value
+    IntegrationEvent:
+      type: object
+      description: One audit-backed delivery event (no payload, no secret).
+      properties:
+        event_type:
+          type: string
+        status:
+          type: string
+        occurred_at:
+          type: string
+          format: date-time
+      required:
+      - event_type
+      - occurred_at
+      - status
+    IntegrationEventsLast24h:
+      type: object
+      properties:
+        delivered:
+          type: integer
+          minimum: 0
+        failed:
+          type: integer
+          minimum: 0
+      required:
+      - delivered
+      - failed
+    IntegrationStatus:
+      type: object
+      description: GET /api/admin/integrations/ response (read-only snapshot).
+      properties:
+        enabled:
+          type: boolean
+        host:
+          type: string
+        reachable:
+          type: boolean
+        editor_url:
+          type: string
+        events_last_24h:
+          $ref: '#/components/schemas/IntegrationEventsLast24h'
+        recent_events:
+          type: array
+          items:
+            $ref: '#/components/schemas/IntegrationEvent'
+      required:
+      - editor_url
+      - enabled
+      - events_last_24h
+      - host
+      - reachable
+      - recent_events
+    IntegrationTestResult:
+      type: object
+      description: POST /api/admin/integrations/test/ response (202).
+      properties:
+        queued:
+          type: boolean
+        event_id:
+          type: string
+          nullable: true
+        detail:
+          type: string
+      required:
+      - detail
+      - event_id
+      - queued
     Logout:
       type: object
       properties:

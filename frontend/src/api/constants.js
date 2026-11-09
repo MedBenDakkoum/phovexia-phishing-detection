@@ -168,6 +168,8 @@ export const AUDIT_ACTIONS = {
   apikey_revoked: "Clé API révoquée",
   password_reset_requested: "Réinitialisation demandée",
   password_reset_completed: "Réinitialisation terminée",
+  "integration.delivered": "Événement n8n livré",
+  "integration.delivery_failed": "Échec de livraison n8n",
 };
 export const AUDIT_ACTION_VALUES = Object.keys(AUDIT_ACTIONS);
 
@@ -219,6 +221,8 @@ export const ENDPOINTS = {
   adminHealth: "/api/admin/health/",
   adminApiKeys: "/api/admin/api-keys/",
   adminApiKey: (id) => `/api/admin/api-keys/${id}/`,
+  adminIntegrations: "/api/admin/integrations/",
+  adminIntegrationTest: "/api/admin/integrations/test/",
   docs: "/api/docs/",
   schema: "/api/schema/",
   health: "/api/health/",

@@ -66,6 +66,13 @@ class AuditLog(models.Model):
             "integration.delivery_failed",
             "Échec de livraison d'un événement d'intégration",
         )
+        # Successful delivery, written once per event. Metadata = event type
+        # and event id ONLY (no payload, no body, no secret): the volume stays
+        # bounded to one tiny row per delivered event.
+        INTEGRATION_DELIVERED = (
+            "integration.delivered",
+            "Livraison d'un événement d'intégration",
+        )
 
     # Qui : FK (filtrage) + copie de l'email (conservée même si le compte disparaît,
     # et utilisable pour une tentative de connexion sur un email inconnu).

@@ -477,6 +477,11 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
 # network; production should use https.
 N8N_WEBHOOK_BASE_URL = (os.getenv("N8N_WEBHOOK_BASE_URL") or "").strip().rstrip("/")
 N8N_WEBHOOK_SECRET = (os.getenv("N8N_WEBHOOK_SECRET") or "").strip()
+# Public editor URL shown to the admin (link "Ouvrir n8n"). It is NOT the
+# webhook destination: the backend never posts to it. Local default only.
+N8N_EDITOR_URL = (
+    os.getenv("N8N_EDITOR_URL") or "http://localhost:5678"
+).strip().rstrip("/")
 if N8N_WEBHOOK_BASE_URL:
     _webhook_base = urlparse(N8N_WEBHOOK_BASE_URL)
     if _webhook_base.scheme not in {"http", "https"} or not _webhook_base.netloc:
@@ -540,10 +545,14 @@ REST_FRAMEWORK = {
     # Step 13 (US5): password reset - per IP on both endpoints.
     # The per-EMAIL limit (3/hour) is a cache counter in accounts.services.
     "password_reset": _throttle_rate_env("THROTTLE_PASSWORD_RESET", "5/hour"),
-    "password_reset_confirm": _throttle_rate_env(
-        "THROTTLE_PASSWORD_RESET_CONFIRM", "10/hour"
-    ),
-},
+        "password_reset_confirm": _throttle_rate_env(
+            "THROTTLE_PASSWORD_RESET_CONFIRM", "10/hour"
+        ),
+        # Admin automation page: POST /api/admin/integrations/test/ (5/min).
+        "integration_test": _throttle_rate_env(
+            "THROTTLE_INTEGRATION_TEST", "5/min"
+        ),
+    },
     # Step 8d: 0 proxies => the throttle key is REMOTE_ADDR; a client-supplied
     # X-Forwarded-For is NEVER trusted (set N behind N reverse proxies).
     "NUM_PROXIES": _non_negative_int_env("NUM_PROXIES", 0),

@@ -21,6 +21,19 @@ def _clear_throttle_cache():
 
 
 @pytest.fixture(autouse=True)
+def _disable_n8n_by_default(settings):
+    """Hermetic tests: never POST to a real n8n from a developer .env.
+
+    The integration tests explicitly enable it with the `settings` fixture;
+    every other test must not depend on the local N8N_WEBHOOK_BASE_URL (with
+    CELERY_TASK_ALWAYS_EAGER a real POST would raise a retry).
+    """
+    settings.N8N_WEBHOOK_BASE_URL = ""
+    settings.N8N_WEBHOOK_SECRET = ""
+    yield
+
+
+@pytest.fixture(autouse=True)
 def _celery_eager(settings):
     """Step 6: run Celery tasks synchronously in tests (CELERY_TASK_ALWAYS_EAGER).
 

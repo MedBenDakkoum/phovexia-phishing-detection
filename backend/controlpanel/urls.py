@@ -8,6 +8,8 @@ from django.urls import path
 
 from .views import (
     AdminHealthView,
+    AdminIntegrationsView,
+    AdminIntegrationTestView,
     ApiKeyListCreateView,
     ApiKeyRevokeView,
     DashboardView,
@@ -55,6 +57,17 @@ urlpatterns = [
     # Public, minimal health (US53) - the only non-admin endpoint here.
     path("health/", PublicHealthView.as_view(), name="public-health"),
     path("admin/health/", AdminHealthView.as_view(), name="admin-health"),
+    # Admin automations page: n8n visibility + one harmless test event.
+    path(
+        "admin/integrations/",
+        AdminIntegrationsView.as_view(),
+        name="admin-integrations",
+    ),
+    path(
+        "admin/integrations/test/",
+        AdminIntegrationTestView.as_view(),
+        name="admin-integration-test",
+    ),
     path(
         "admin/api-keys/",
         ApiKeyListCreateView.as_view(),
