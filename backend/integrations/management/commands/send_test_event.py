@@ -13,12 +13,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from integrations.events import EVENT_PATHS
-from integrations.services import emit_event, is_enabled
-
-TEST_PAYLOAD = {
-    "message": "Harmless test event emitted by manage.py send_test_event",
-    "origin": "management_command",
-}
+from integrations.services import TEST_EVENT_PAYLOAD, emit_event, is_enabled
 
 
 class Command(BaseCommand):
@@ -47,7 +42,7 @@ class Command(BaseCommand):
             raise CommandError(
                 "N8N_WEBHOOK_SECRET is required when N8N_WEBHOOK_BASE_URL is set."
             )
-        event_id = emit_event(event_type, dict(TEST_PAYLOAD))
+        event_id = emit_event(event_type, dict(TEST_EVENT_PAYLOAD))
         self.stdout.write(
             self.style.SUCCESS(f"event queued id={event_id} type={event_type}")
         )

@@ -20,6 +20,7 @@ import {
   SlidersHorizontal,
   UserRound,
   Users,
+  Workflow,
 } from "lucide-react";
 import { ENDPOINTS, ROLES } from "../api/constants";
 import { listNotifications } from "../api/notifications";
@@ -48,6 +49,7 @@ const ADMIN_NAV = [
   { to: "/app/admin/settings", label: "Réglages de détection", icon: SlidersHorizontal },
   { to: "/app/admin/health", label: "Santé du système", icon: Activity },
   { to: "/app/admin/api-keys", label: "Clés API", icon: KeyRound },
+  { to: "/app/admin/automations", label: "Automatisations n8n", icon: Workflow },
   { to: "/admin/brands", label: "Marques protégées", icon: BadgeCheck },
   { to: "/app/admin/audit", label: "Journal d'audit", icon: ScrollText },
 ];
@@ -64,6 +66,7 @@ const TITLES = {
   "/app/admin/settings": "Réglages de détection",
   "/app/admin/health": "Santé du système",
   "/app/admin/api-keys": "Clés API",
+  "/app/admin/automations": "Automatisations n8n",
   "/admin/brands": "Marques protégées",
   "/app/admin/audit": "Journal d'audit",
 };

@@ -3,6 +3,7 @@ import AppShell from "./layout/AppShell";
 import { PublicOnly, RequireAuth, RequireRole } from "./layout/Guards";
 import PublicLayout from "./layout/PublicLayout";
 import AdminApiKeys from "./pages/AdminApiKeys";
+import AdminAutomations from "./pages/AdminAutomations";
 import AdminHealth from "./pages/AdminHealth";
 import AdminModels from "./pages/AdminModels";
 import AdminSettings from "./pages/AdminSettings";
@@ -65,6 +66,7 @@ export default function App() {
             <Route path="app/admin/settings" element={<AdminSettings />} />
             <Route path="app/admin/health" element={<AdminHealth />} />
             <Route path="app/admin/api-keys" element={<AdminApiKeys />} />
+            <Route path="app/admin/automations" element={<AdminAutomations />} />
             <Route path="app/admin/audit" element={<AuditLogs />} />
             <Route path="admin/brands" element={<Brands />} />
           </Route>

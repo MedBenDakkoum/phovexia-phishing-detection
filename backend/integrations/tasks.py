@@ -86,3 +86,9 @@ def deliver_event(self, event: dict) -> None:
         event_type,
         response.status_code,
     )
+    # One tiny immutable row per delivered event (type + id only). n8n itself
+    # keeps the execution history, so the payload/body are never duplicated.
+    record(
+        AuditLog.Action.INTEGRATION_DELIVERED,
+        metadata={"event_type": event_type, "event_id": event_id},
+    )

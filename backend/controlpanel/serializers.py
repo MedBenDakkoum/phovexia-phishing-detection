@@ -218,3 +218,35 @@ class ApiKeyCreatedSerializer(ApiKeySerializer):
 
     def get_secret(self, obj) -> str:
         return self.context.get("secret", "")
+
+
+class IntegrationEventSerializer(serializers.Serializer):
+    """One audit-backed delivery event (no payload, no secret)."""
+
+    event_type = serializers.CharField(allow_blank=True)
+    status = serializers.CharField()
+    occurred_at = serializers.DateTimeField()
+
+
+class IntegrationEventsLast24hSerializer(serializers.Serializer):
+    delivered = serializers.IntegerField(min_value=0)
+    failed = serializers.IntegerField(min_value=0)
+
+
+class IntegrationStatusSerializer(serializers.Serializer):
+    """GET /api/admin/integrations/ response (read-only snapshot)."""
+
+    enabled = serializers.BooleanField()
+    host = serializers.CharField(allow_blank=True)
+    reachable = serializers.BooleanField()
+    editor_url = serializers.CharField()
+    events_last_24h = IntegrationEventsLast24hSerializer()
+    recent_events = IntegrationEventSerializer(many=True)
+
+
+class IntegrationTestResultSerializer(serializers.Serializer):
+    """POST /api/admin/integrations/test/ response (202)."""
+
+    queued = serializers.BooleanField()
+    event_id = serializers.CharField(allow_null=True, allow_blank=True)
+    detail = serializers.CharField()
