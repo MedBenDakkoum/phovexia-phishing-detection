@@ -1,0 +1,104 @@
+{
+  "name": "Phishing - scan needs review",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "scan-needs-review",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "id": "33333333-3333-4333-8333-333333333333",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "33333333-3333-4333-8333-333333333333",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "siQ0JnyyhwotjiaR",
+          "name": "Webhook secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst e = raw.body ?? raw;\nconst p = e.payload ?? e;\nconst defang = (d) => String(d ?? '?').replace(/\\./g, '[.]');\nconst domaine = p.domain ?? '?';\nconst texte = 'Un cas attend une revue.\\nDomaine : hxxps://' + defang(domaine) + '\\nLien : ' + (p.review_url ?? p.review_link ?? p.link ?? '');\nreturn [{ json: { subject: '[À EXAMINER] ' + defang(domaine), text: texte } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "7c5f912b-d9bb-4774-809a-e11f1aba515c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "fromEmail": "phishing-bot@demo.local",
+        "toEmail": "equipe@demo.local",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "80737f4b-a8c7-4dea-bc72-badb54c603a2",
+      "name": "Send an Email",
+      "webhookId": "c5740f34-0fd3-4889-bea8-1e6f0a9f7ed8",
+      "credentials": {
+        "smtp": {
+          "id": "oI0klml6mS6EaUtu",
+          "name": "Mailpit"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8f49732a-4b8c-4671-a92f-f07330d760d8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3faf58da5c2d664928cb2ae8baaa02cab0cd7be4559ca38fe935bb837fe45187"
+  },
+  "nodeGroups": [],
+  "id": "sOTr94ifzhXClPUq",
+  "tags": []
+}

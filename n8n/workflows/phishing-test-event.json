@@ -1,0 +1,43 @@
+{
+  "name": "Phishing - test event",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "test-event",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "id": "11111111-1111-4111-8111-111111111111",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "11111111-1111-4111-8111-111111111111",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "siQ0JnyyhwotjiaR",
+          "name": "Webhook secret"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {},
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c58347fa-06c5-4cc4-a996-27a54f41ff8c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3faf58da5c2d664928cb2ae8baaa02cab0cd7be4559ca38fe935bb837fe45187"
+  },
+  "nodeGroups": [],
+  "id": "sXpE7NALcHwqKDuv",
+  "tags": []
+}

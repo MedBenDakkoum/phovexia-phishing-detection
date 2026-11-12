@@ -1,0 +1,166 @@
+{
+  "name": "W3 - Automated Reporting",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f9df9f8c-087e-4654-b03e-893d6a44fe42",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "http://web:8000/api/admin/dashboard/?period=7d",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "81051fd2-ce4e-4a70-8dc2-3d647a4edecb",
+      "name": "Get Dashboard Report",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "68kOKLehK7Eo6rF0",
+          "name": "Phishing monitor"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://web:8000/api/admin/health/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "65150568-3da5-4904-b8d6-ac3e5ec70516",
+      "name": "Get Recent Scans",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "68kOKLehK7Eo6rF0",
+          "name": "Phishing monitor"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst dashboard = $('Get Dashboard Report').first().json;\nconst health = $('Get Recent Scans').first().json;\n\nconst totals = dashboard.totals ?? {};\nconst verdicts = dashboard.scans_by_verdict ?? {};\nconst statuses = dashboard.scans_by_status ?? {};\nconst checks = health.checks ?? {};\n\nconst report = [\n  'DAILY PHISHING MONITORING REPORT',\n  '================================',\n  '',\n  'DASHBOARD SUMMARY',\n  `Total scans: ${totals.scans ?? 0}`,\n  `Total users: ${totals.users ?? 0}`,\n  `Quick checks: ${dashboard.quick_checks ?? 0}`,\n  '',\n  'SCANS BY VERDICT',\n  `Legitimate: ${verdicts.legitimate ?? 0}`,\n  `Phishing: ${verdicts.phishing ?? 0}`,\n  `Uncertain: ${verdicts.uncertain ?? 0}`,\n  '',\n  'SYSTEM HEALTH',\n  `Overall status: ${health.status ?? 'Unknown'}`,\n  `Database: ${checks.database?.message ?? 'Unknown'}`,\n  `Redis: ${checks.redis?.message ?? 'Unknown'}`,\n  `Celery: ${checks.celery?.message ?? 'Unknown'}`,\n  `Queue length: ${checks.queue_length?.value ?? 'Unknown'}`,\n  '',\n  'SCANS BY STATUS',\n  ...Object.entries(statuses).map(([key, value]) => `${key}: ${value}`),\n  '',\n  `Generated at: ${new Date().toLocaleString('en-GB', { timeZone: 'Africa/Tunis' })}`\n].join('\\n');\n\nreturn [{\n  json: {\n    subject: '[Daily Report] Phishing Monitoring',\n    text: report\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "60018839-ed87-4c93-88e0-e5ba867650be",
+      "name": "Build Daily Report"
+    },
+    {
+      "parameters": {
+        "fromEmail": "phishing-bot@demo.local",
+        "toEmail": "equipe@demo.local",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        896,
+        0
+      ],
+      "id": "189507b1-ab29-4dde-84b7-dcdf0c00915d",
+      "name": "Send Daily Report",
+      "webhookId": "07e26ba8-5b34-4490-8d0d-6ade0bf47ea3",
+      "credentials": {
+        "smtp": {
+          "id": "oI0klml6mS6EaUtu",
+          "name": "Mailpit"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Dashboard Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Dashboard Report": {
+      "main": [
+        [
+          {
+            "node": "Get Recent Scans",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recent Scans": {
+      "main": [
+        [
+          {
+            "node": "Build Daily Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Daily Report": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "bf71652e-441b-4057-bc1a-0bb821d154bf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3faf58da5c2d664928cb2ae8baaa02cab0cd7be4559ca38fe935bb837fe45187"
+  },
+  "nodeGroups": [],
+  "id": "mRVHJvFXAgxfH0tU",
+  "tags": []
+}

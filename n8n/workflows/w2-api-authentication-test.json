@@ -1,0 +1,64 @@
+{
+  "name": "W2 - API Authentication Test",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "83f824f3-2e39-4319-8df8-24410354c6d3",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "http://web:8000/api/admin/dashboard/?period=7d",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "663b5115-2d15-4ec6-88bb-07348caa3cc7",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "68kOKLehK7Eo6rF0",
+          "name": "Phishing monitor"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d09f701e-738a-400f-9af0-3f1bd38759f0",
+  "meta": {
+    "instanceId": "3faf58da5c2d664928cb2ae8baaa02cab0cd7be4559ca38fe935bb837fe45187"
+  },
+  "nodeGroups": [],
+  "id": "YwT9KnX6BbCnRdEu",
+  "tags": []
+}

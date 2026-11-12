@@ -1,0 +1,104 @@
+{
+  "name": "Phishing - scan confirmed",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "scan-confirmed",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "id": "22222222-2222-4222-8222-222222222222",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "22222222-2222-4222-8222-222222222222",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "siQ0JnyyhwotjiaR",
+          "name": "Webhook secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst raw = $input.first().json;\nconst e = raw.body ?? raw;\nconst p = e.payload ?? e.data ?? e;\n\nconst defang = (d) => String(d ?? '?').replace(/\\./g, '[.]');\n\nconst domaine = p.domain ?? '?';\nconst lien = p.review_url ?? p.review_link ?? p.link ?? '';\n\nconst texte = [\n  'Un phishing vient d\\'être confirmé par un analyste.',\n  'Domaine : hxxps://' + defang(domaine),\n  'Lien vers le cas : ' + lien,\n  '',\n  'Détails : ' + JSON.stringify(p)\n].join('\\n');\n\nreturn [{\n  json: {\n    subject: '[ALERTE] Phishing confirmé : ' + defang(domaine),\n    text: texte\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "7b01b80d-6bf8-4112-8d48-e70857af0c56",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "fromEmail": "phishing-bot@demo.local",
+        "toEmail": "equipe@demo.local",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "af8503bd-0211-4218-9355-0ed0a18d7f4c",
+      "name": "Send an Email",
+      "webhookId": "fff69dbb-e7ee-4e2b-923f-b9127ff5d839",
+      "credentials": {
+        "smtp": {
+          "id": "oI0klml6mS6EaUtu",
+          "name": "Mailpit"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6fa25257-baf0-4a11-9729-1a79d41ef9cc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3faf58da5c2d664928cb2ae8baaa02cab0cd7be4559ca38fe935bb837fe45187"
+  },
+  "nodeGroups": [],
+  "id": "lXAENyHmqcE587ug",
+  "tags": []
+}
