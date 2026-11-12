@@ -52,10 +52,11 @@ const WORKFLOWS = [
     id: "W4",
     title: "Signalement par formulaire",
     trigger: "Formulaire n8n",
-    badge: "Formulaire n8n",
-    badgeClass: "badge-info",
+    badge: "Prévu",
+    badgeClass: "",
     description:
       "Déclenché par un formulaire n8n ; extrait les liens d'un message suspect, les fait analyser par l'API et affiche le verdict.",
+    note: "Non activé dans cette version : à venir.",
   },
 ];
 
@@ -307,6 +308,11 @@ export default function AdminAutomations() {
                 {workflow.id} · {workflow.title}
               </h3>
               <p className="health-message">{workflow.description}</p>
+              {workflow.note && (
+                <p className="muted" style={{ marginTop: 8 }}>
+                  {workflow.note}
+                </p>
+              )}
               <dl className="kv health-kv">
                 <dt>Déclencheur</dt>
                 <dd>{workflow.trigger}</dd>

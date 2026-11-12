@@ -90,7 +90,10 @@ test.describe("FE-3 automatisations n8n", () => {
       page.getByText("Planification n8n", { exact: true }).first()
     ).toBeVisible();
     await expect(
-      page.getByText("Formulaire n8n", { exact: true }).first()
+      page.getByText("Prévu", { exact: true }).first()
+    ).toBeVisible();
+    await expect(
+      page.getByText("Non activé dans cette version : à venir.", { exact: true })
     ).toBeVisible();
     await expect(
       page.getByText(
